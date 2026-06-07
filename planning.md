@@ -51,11 +51,13 @@ Coffee shops are one of the most popular third spaces across the states -- they 
      numbers fit the structure of your documents.
      A review-heavy corpus warrants different chunking than a long FAQ. -->
 
-**Chunk size:**
+My sources are primarily long texts (articles) but there are also a couple of short texts (instagram reel description and reddit thread). Therefore, I want to use a way to emcompass info from both types at the same time.
 
-**Overlap:**
+**Chunk size: max size 512, min 100 tokens**
 
-**Reasoning:**
+**Overlap: ~50 tokens (1-2 sentences)**
+
+**Reasoning: Fortunately, most articles on cafe shops seperate each coffee shop into a seperate paragraph, and 512 tokens is a size that can fit information about a paragraph comfortably, while the minimum token size will capture a thread comment nicely.**
 
 ---
 
@@ -67,12 +69,14 @@ Coffee shops are one of the most popular third spaces across the states -- they 
      would you weigh in choosing a different embedding model — context length, multilingual
      support, accuracy on domain-specific text, latency? -->
 
-**Embedding model:**
+<!-- I feel like I don't know enough! -->
 
-**Top-k:**
+**Embedding model: text-embedding-3-small**
+
+**Top-k: 7**
 
 **Production tradeoff reflection:**
-
+For long paragraphs, I need a large enough capability to process a chunk to be able to retrieve enough meaning for information about a café. `text-embedding-3-small` has 8k token context, 1536-dim vectors, and consistently top-tier MTEB scores. Since I don't have that much data, I think it is okay to sacrifice some computational power in order to capture the most information out of a paragraph. As I read the articles, they often overlap on the best cafes. I believe 5-10 is a good `k` to capture enough information to showcase what the cafe is good for from multiple angles, so I want to start with 7. 
 ---
 
 ## Evaluation Plan
@@ -84,11 +88,11 @@ Coffee shops are one of the most popular third spaces across the states -- they 
 
 | # | Question | Expected answer |
 |---|----------|-----------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | What's the best place to study late in Charlotte?| Haraz Coffee or Qawah House|
+| 2 | What's a cafe that's good for reading? | Smelly Cat|
+| 3 | What's a cafe that has fancy, experimental coffee? | Hex Coffee|
+| 4 | What's a good cafe if I just want to catch up with my friend or go on a date? | Smelly Cat|
+| 5 | What's a cafe that laptop friendly? | Stable Hand, Sumaq Coffee |
 
 ---
 
@@ -98,9 +102,9 @@ Coffee shops are one of the most popular third spaces across the states -- they 
      Consider: noisy or inconsistent documents, missing source attribution, off-topic
      retrieval, chunks that split key information across boundaries. -->
 
-1.
+1. I am concerned that my documents are a mix of short and long texts, causing the potential that some chunks will have elaborate information on one cafe while others will contain multiple cafes, causing loss of information.
 
-2.
+2. Certain articles list the cafe names before an intro paragraph, and so my chunking strategy may or may not be able to capture the names in the chunk. There's also the risk that a cafe name could be wrongly assigned to the paragraph before instead of after.
 
 ---
 
@@ -111,6 +115,8 @@ Coffee shops are one of the most popular third spaces across the states -- they 
      Label each stage with the tool or library you're using.
      You can use ASCII art, a Mermaid diagram, or embed a sketch as an image.
      You'll use this diagram as context when prompting AI tools to implement each stage. -->
+
+![alt text](image.png)
 
 ---
 
