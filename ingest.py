@@ -48,14 +48,28 @@ SOURCES = [
         "url": "https://www.henhousedesign.co/blog/favorite-charlotte-date-spots",
         "description": "Hen House — Favorite Charlotte Date Spots",
     },
+    {
+        "id": "wayward",
+        "type": "article",
+        "url": "https://www.waywardblog.com/best-coffee-charlotte-north-carolina/",
+        "description": "Start Your Day at These 15 Essential Charlotte Coffee Shops",
+    },
+    {
+        "id": "spoon",
+        "type": "article",
+        "url": "https://spoonuniversity.com/school/uncc/the-best-coffee-shops-near-unc-charlotte-for-studying/",
+        "description": "The Best Coffee Shops Near UNC Charlotte For Studying",
+    },
+    
     # Instagram reels: descriptions must be saved manually as .txt files
     # since Instagram blocks scraping. Place them in raw_docs/ as:
     #   raw_docs/instagram_reel_1.txt
     #   raw_docs/instagram_reel_2.txt
 ]
 
-CHUNK_MIN_TOKENS = 100
-CHUNK_MAX_TOKENS = 512
+CHUNK_MIN_TOKENS = 50
+CHUNK_MAX_TOKENS = 110
+CHUNK_OVERLAP_TOKENS = 30   # tokens of previous chunk to prepend as context
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 TOKENIZER_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
@@ -254,26 +268,66 @@ class Chunk:
 # Chunking
 # ---------------------------------------------------------------------------
 
-def enforce_token_guardrails(chunks: list[str]) -> list[str]:
+def enforce_token_guardrails(
+    chunks: list[str],
+    min_tokens: int = CHUNK_MIN_TOKENS,
+    max_tokens: int = CHUNK_MAX_TOKENS,
+) -> list[str]:
     """
     Post-processing:
-    - Drop chunks below CHUNK_MIN_TOKENS (too small to be meaningful)
-    - Hard-truncate chunks above CHUNK_MAX_TOKENS
+    - Drop chunks below min_tokens (too small to be meaningful)
+    - Hard-truncate chunks above max_tokens
+    Defaults to the global config values; callers can pass tighter limits
+    for short documents.
     """
     result = []
     for chunk in chunks:
         n = count_tokens(chunk)
-        if n < CHUNK_MIN_TOKENS:
+        if n < min_tokens:
             continue  # discard
-        if n > CHUNK_MAX_TOKENS:
-            chunk = truncate_to_tokens(chunk, CHUNK_MAX_TOKENS)
+        if n > max_tokens:
+            chunk = truncate_to_tokens(chunk, max_tokens)
         result.append(chunk)
     return result
 
 
-def chunk_document(text: str, splitter: SemanticChunker) -> list[str]:
+def apply_overlap(chunks: list[str], overlap_tokens: int) -> list[str]:
+    """
+    Prepend the last `overlap_tokens` tokens of chunk[i-1] to chunk[i].
+    This gives each chunk a short window of context from the previous one
+    so retrieval doesn't lose meaning at hard semantic boundaries.
+
+    The overlap is trimmed to keep the final chunk within CHUNK_MAX_TOKENS.
+    The first chunk is unchanged.
+    """
+    if overlap_tokens <= 0 or len(chunks) < 2:
+        return chunks
+
+    result = [chunks[0]]
+    for i in range(1, len(chunks)):
+        prev_ids = tokenizer.encode(chunks[i - 1], add_special_tokens=False)
+        tail_ids = prev_ids[-overlap_tokens:]          # last N tokens of previous chunk
+        tail_text = tokenizer.decode(tail_ids, skip_special_tokens=True)
+
+        combined = tail_text.rstrip() + " " + chunks[i].lstrip()
+
+        # Re-enforce the max-token cap (overlap must not blow the budget)
+        combined = truncate_to_tokens(combined, CHUNK_MAX_TOKENS)
+        result.append(combined)
+
+    return result
+
+
+def chunk_document(text: str, splitter: SemanticChunker, stype: str) -> list[str]:
+    # Short documents get tighter guardrails so small content isn't thrown away
+    if stype == "article":
+        min_tok, max_tok, overlap = CHUNK_MIN_TOKENS, CHUNK_MAX_TOKENS, CHUNK_OVERLAP_TOKENS
+    else:
+        min_tok, max_tok, overlap = 10, 30, 10
+
     raw_chunks = splitter.split_text(text)
-    return enforce_token_guardrails(raw_chunks)
+    guardrailed = enforce_token_guardrails(raw_chunks, min_tok, max_tok)
+    return apply_overlap(guardrailed, overlap)
 
 
 # ---------------------------------------------------------------------------
@@ -291,6 +345,8 @@ SOURCE_META: dict[str, dict] = {
     "sprudge":             {"source_type": "article",   "description": "Sprudge Guide to Coffee in Charlotte"},
     "hopculture":          {"source_type": "article",   "description": "Hop Culture — Best Coffee Roasters and Shops"},
     "henhouse":            {"source_type": "article",   "description": "Hen House — Favorite Charlotte Date Spots"},
+    "wayward":             {"source_type": "article",   "description": "Wayward — 15 Essential Charlotte Coffee Shops"},
+    "spoon":               {"source_type": "article",   "description": "Spoon University — Best Coffee Shops Near UNC Charlotte"},
     "yelp_top10":          {"source_type": "pdf",       "description": "Yelp — Top 10 Coffee Shops"},
     "charlotte_observer":  {"source_type": "pdf",       "description": "Charlotte Observer — Coffee Guide"},
 }
@@ -302,9 +358,38 @@ SOURCE_META: dict[str, dict] = {
 
 def run():
     # ------------------------------------------------------------------
-    # STEP 1 — Convert any PDFs in raw_pdfs/ to .txt files in raw_docs/
+    # STEP 1 — Scrape / fetch web sources listed in SOURCES → raw_docs/
+    # Already-cached .txt files are loaded from disk; missing ones are
+    # fetched from the network and saved so re-runs are fast.
     # ------------------------------------------------------------------
-    print("=== Step 1: PDF → raw_docs ===")
+    print("=== Step 1: Web scraping → raw_docs ===")
+    for src in SOURCES:
+        sid = src["id"]
+        stype = src["type"]
+        raw_path = RAW_DIR / f"{sid}.txt"
+
+        if raw_path.exists():
+            print(f"  [skip] {sid} already cached")
+            continue
+
+        print(f"  Fetching [{sid}] ({stype})...")
+        try:
+            if stype == "reddit":
+                raw = fetch_reddit(src["url"])
+            elif stype == "article":
+                raw = fetch_article(src["url"])
+            else:
+                print(f"  ⚠ Unknown type '{stype}', skipping")
+                continue
+            raw_path.write_text(raw, encoding="utf-8")
+            print(f"  → saved ({len(raw)} chars)")
+        except Exception as e:
+            print(f"  ✗ Failed to fetch: {e}")
+
+    # ------------------------------------------------------------------
+    # STEP 2 — Convert any PDFs in raw_pdfs/ to .txt files in raw_docs/
+    # ------------------------------------------------------------------
+    print("\n=== Step 2: PDF → raw_docs ===")
     for pdf_file in sorted(PDF_DIR.glob("*.pdf")):
         out_path = RAW_DIR / (pdf_file.stem + ".txt")
         if out_path.exists():
@@ -323,9 +408,9 @@ def run():
         print(f"  → saved to {out_path.name} ({len(text)} chars)")
 
     # ------------------------------------------------------------------
-    # STEP 2 — Chunk every .txt in raw_docs/ into chunks.json
+    # STEP 3 — Chunk every .txt in raw_docs/ into chunks.json
     # ------------------------------------------------------------------
-    print("\n=== Step 2: Chunking raw_docs/*.txt ===")
+    print("\n=== Step 3: Chunking raw_docs/*.txt ===")
     print("Loading embedding model...")
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
     splitter = SemanticChunker(
@@ -349,7 +434,7 @@ def run():
             print(f"  ⚠ Empty after cleaning, skipping")
             continue
 
-        chunks = chunk_document(cleaned, splitter)
+        chunks = chunk_document(cleaned, splitter, stype)
         print(f"  → {len(chunks)} chunks")
 
         for i, chunk_text in enumerate(chunks):
