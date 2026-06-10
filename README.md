@@ -14,6 +14,8 @@
      Example: "Student reviews of CS professors at [university] — useful because official
      course descriptions don't reflect teaching style, exam difficulty, or workload." -->
 
+Coffee shops are one of the most popular third spaces across the states -- they spark creativity, connection, and innovation. Yet there's always so many coffee shops around town, and each serve a different purpose. It's hard to get the vibes unless you have visited them all and took notes. So, here's a guide to new people to the city of Charlotte on what coffee shops will fit into what you're looking for. 
+
 ---
 
 ## Document Sources
@@ -22,18 +24,18 @@
      Be specific: include URLs, subreddit names, forum thread titles, or file names.
      Aim for variety — sources that together cover different subtopics or perspectives. -->
 
-| # | Source | Type | URL or file path |
-|---|--------|------|-----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
-| 8 | | | |
-| 9 | | | |
-| 10 | | | |
+| # | Source | Description | URL or location |
+|---|--------|-------------|-----------------|
+| 1 | Reddit Thread| A thread on good coffess around CLT | https://www.reddit.com/r/Charlotte/comments/1phh3cn/charlotte_has_really_good_coffee/|
+| 2 | article / website| A newspaper article on coffee shops around town |https://www.charlotteobserver.com/charlottefive/c5-food-drink/article312516268.html |
+| 3 | Reddit Thread | A reddit discussion that discusses the best coffee shops | https://www.reddit.com/r/Charlotte/comments/1kgupce/best_coffee_shop/ |
+| 4 | article | Best Laptop-Friendly Cafés in Charlotte | https://cathzine.substack.com/p/best-laptop-friendly-cafes-in-charlotte|
+| 5 | article |The Sprudge Guide To Coffee In Charlotte, North Carolina |https://sprudge.com/the-sprudge-guide-to-coffee-in-charlotte-north-carolina-193932.html |
+| 6 | Instagram reel | 5 must visit coffee shops in CLT |https://www.instagram.com/reel/DVv-XEqjh2h/?hl=en |
+| 7 | Instagram reel | 10 best coffee shops in CLT | https://www.instagram.com/reel/C7j0rL0RcWI/?hl=en |
+| 8 | Website article| The Best Coffee Roasters And Shops in Charlotte, North Carolina | https://www.hopculture.com/best-coffee-charlotte-north-carolina-craft-roasters-shops/|
+| 9 | Yelp Ranking/Thread | Best Coffee in Charlotte | The Best Coffee Roasters And Shops in Charlotte, North Carolina|
+| 10 | Article | Favorite Charlotte Date Spots | https://www.henhousedesign.co/blog/favorite-charlotte-date-spots
 
 ---
 
@@ -46,6 +48,7 @@
      - Any preprocessing you did before chunking (e.g., stripping HTML, removing headers)
      - What your final chunk count was across all documents -->
 
+Since I looked for a diverse set of sources, such as Reddit and online blog posts, the chunk size that makes sense for the var
 **Chunk size:**
 
 **Overlap:**
