@@ -48,10 +48,6 @@ Coffee shops are one of the most popular third spaces across the states -- they 
      - Any preprocessing you did before chunking (e.g., stripping HTML, removing headers)
      - What your final chunk count was across all documents -->
 
-**Chunk size:**
-
-
-**Overlap:**
 | | min chunk size | max chunk size | overlap |
 |--------|----|----|----|
 | article | 50 | 110 | 30 |
@@ -72,9 +68,10 @@ Since I looked for a diverse set of sources, such as Reddit and online blog post
      Consider: context length limits, multilingual support, accuracy on domain-specific text,
      latency, and local vs. API-hosted. -->
 
-**Model used:**
+**Model used: all-MiniLM-L6-v2**
 
 **Production tradeoff reflection:**
+I used this model because it's one the standard baselines for embedding models. It's small, it's fast, and it is easily supported. If I was deploying this system for real users, I would want to use a model that allows for larger context length limits than 256 tokens, what MiniLM supports. MiniLM is trained on general web text, and since coffee shops are a pretty generic topic, I think MiniLM is enough for that. My topic also doesn't require extensive multilingal support or extremely good quality, so I think MiniLM is a pretty good fit. 
 
 ---
 
@@ -88,8 +85,27 @@ Since I looked for a diverse set of sources, such as Reddit and online blog post
      the mechanism. -->
 
 **System prompt grounding instruction:**
+"""\
+You are a helpful local guide specialising in Charlotte, NC coffee shops.
+Answer the user's question using ONLY the information in the numbered source \
+documents provided. Do not use any outside knowledge.
+
+You MUST respond with valid JSON in exactly this format and nothing else:
+{"answer": "<your answer here>", "citations": [<source numbers you used>]}
+
+Rules:
+- "answer": your response as a plain string. Keep it concise (2–4 sentences).
+- "citations": a JSON array of the integer source numbers (e.g. [1, 3]) whose \
+text you actually used. Every claim in your answer must be backed by a cited source.
+- If the documents don't contain enough information, set "answer" to \
+"I don't have enough information on that." and "citations" to [].
+- Never invent details (hours, prices, addresses) not present in the documents.
+- Output raw JSON only — no markdown fences, no extra keys, no explanation.\
+"""
+
 
 **How source attribution is surfaced in the response:**
+The context is created by a join of the top 7 chunks retrieved and the query above. The structured output forces the json to contain a mandatory citations field. If this field doesn't contain anything, then I force the LLM to regenerate a response through the context. In addition, if the citation is source 7 but there were only 5 chunks, that citation is stripped. Lastly, I implemented a NER system to identify the coffee shop names recommended in the prompt, and validate that this name appear in the text of the citation.
 
 ---
 
