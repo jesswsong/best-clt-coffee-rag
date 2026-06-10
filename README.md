@@ -31,8 +31,8 @@ Coffee shops are one of the most popular third spaces across the states -- they 
 | 3 | Reddit Thread | A reddit discussion that discusses the best coffee shops | https://www.reddit.com/r/Charlotte/comments/1kgupce/best_coffee_shop/ |
 | 4 | article | Best Laptop-Friendly Cafés in Charlotte | https://cathzine.substack.com/p/best-laptop-friendly-cafes-in-charlotte|
 | 5 | article |The Sprudge Guide To Coffee In Charlotte, North Carolina |https://sprudge.com/the-sprudge-guide-to-coffee-in-charlotte-north-carolina-193932.html |
-| 6 | Instagram reel | 5 must visit coffee shops in CLT |https://www.instagram.com/reel/DVv-XEqjh2h/?hl=en |
-| 7 | Instagram reel | 10 best coffee shops in CLT | https://www.instagram.com/reel/C7j0rL0RcWI/?hl=en |
+| 6 | article | Start Your Day at These 15 Essential Charlotte Coffee Shops |https://www.waywardblog.com/best-coffee-charlotte-north-carolina/ |
+| 7 | article | The Best Coffee Shops Near UNC Charlotte For Studying | https://spoonuniversity.com/school/uncc/the-best-coffee-shops-near-unc-charlotte-for-studying/ |
 | 8 | Website article| The Best Coffee Roasters And Shops in Charlotte, North Carolina | https://www.hopculture.com/best-coffee-charlotte-north-carolina-craft-roasters-shops/|
 | 9 | Yelp Ranking/Thread | Best Coffee in Charlotte | The Best Coffee Roasters And Shops in Charlotte, North Carolina|
 | 10 | Article | Favorite Charlotte Date Spots | https://www.henhousedesign.co/blog/favorite-charlotte-date-spots
