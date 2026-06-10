@@ -120,8 +120,7 @@ The context is created by a join of the top 7 chunks retrieved and the query abo
 | 1 | What's the best place to study late in Charlotte?| Haraz Coffee or Qawah House| not enough information | partially relevant | accurate
 | 2 | What's a cafe that's good for reading? | Smelly Cat| Summit Coffee, reading wasn't mentioned but has the right vibe for studying | Relevant | Accurate
 | 3 | What's a cafe that has fancy or artisan coffee? | Hex Coffee| Vavela cafe with Turkish coffee, Amelie's French Bakery with French Cafe atmosphere | Relevant | Accurate
-| 4 | What's a good cafe if I just want to catch up with my friend or go on a date? | Smelly Cat|
-Stable Hand, a cafe with energetic atmosphere | Relevant | Accurate
+| 4 | What's a good cafe if I just want to catch up with my friend or go on a date? | Smelly Cat| Stable Hand, a cafe with energetic atmosphere | Relevant | Accurate
 | 5 | What's a cafe that laptop friendly? | Stable Hand, Sumaq Coffee | Undercurrent, Stable Hand - reliable WiFi and comfortable seating | Relevant | Accurate
 
 **Retrieval quality:** Relevant / Partially relevant / Off-target  
