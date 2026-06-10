@@ -187,6 +187,6 @@ The specs asked for one chunking size, yeah, Darren development because I chose 
 
 **Instance 2**
 
-- *What I gave the AI:*
-- *What it produced:*
-- *What I changed or overrode:*
+- *What I gave the AI:* I gave the AI instructions to implement a chunking method with min and max token limits. 
+- *What it produced:* It implemented it with 500 as the max token limit.
+- *What I changed or overrode:* Through just reading through my texts, I knew that 500 is too large of a chunk size. I did a few rounds of testing and decided 110 created the best results. 
