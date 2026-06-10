@@ -21,7 +21,7 @@ CHUNKS_FILE   = Path("chunks.json")
 CHROMA_DIR    = Path("chroma_db")       # where ChromaDB persists its data
 COLLECTION    = "charlotte_coffee"      # ChromaDB collection name
 EMBED_MODEL   = "all-MiniLM-L6-v2"
-TOP_K         = 5                       # default number of results to return
+TOP_K         = 7                       # default number of results to return
 
 # ---------------------------------------------------------------------------
 # Load embedding model (once at import time so callers don't re-pay the cost)

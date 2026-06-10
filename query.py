@@ -9,8 +9,10 @@ Output  : answer with inline [Source N] citations  +  appended source list
 
 import json
 import os
+import re
 from dotenv import load_dotenv
 from groq import Groq
+from transformers import pipeline
 
 from retrieval import build_index, retrieve, TOP_K
 
@@ -41,6 +43,61 @@ text you actually used. Every claim in your answer must be backed by a cited sou
 - Never invent details (hours, prices, addresses) not present in the documents.
 - Output raw JSON only — no markdown fences, no extra keys, no explanation.\
 """
+
+# ---------------------------------------------------------------------------
+# Entity-level grounding check
+# ---------------------------------------------------------------------------
+
+# Loaded once at import time; dslim/bert-base-NER is small (~400 MB) and
+# recognises ORG entities well enough for business names.
+_ner = pipeline(
+    "ner",
+    model="dslim/bert-base-NER",
+    aggregation_strategy="simple",   # merges sub-word tokens into full spans
+)
+
+
+def _extract_shop_names(text: str) -> list[str]:
+    """Return ORG entity spans found in *text* by the NER model."""
+    entities = _ner(text)
+    return [e["word"] for e in entities if e["entity_group"] == "ORG"]
+
+
+def validate_shop_names(answer: str, cited_hits: list[dict]) -> dict:
+    """
+    Extract coffee shop names mentioned in *answer*, then verify each one
+    appears literally in the text of at least one cited chunk.
+
+    Returns:
+        {
+          "all_valid": bool,
+          "results": [
+            {"name": str, "found": bool, "found_in_sources": [int, ...]},
+            ...
+          ]
+        }
+    """
+    shop_names = _extract_shop_names(answer)
+    cited_text_by_rank = {h["rank"]: h["text"] for h in cited_hits}
+
+    results = []
+    for name in shop_names:
+        pattern = re.compile(re.escape(name), re.IGNORECASE)
+        found_in = [
+            rank for rank, text in cited_text_by_rank.items()
+            if pattern.search(text)
+        ]
+        results.append({
+            "name": name,
+            "found": len(found_in) > 0,
+            "found_in_sources": found_in,
+        })
+
+    return {
+        "all_valid": all(r["found"] for r in results),
+        "results": results,
+    }
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -136,12 +193,24 @@ def ask(
                 "description": hit["source_description"],
             }
 
+    # Entity-level grounding: verify every shop name in the answer appears
+    # in the text of the chunks it claims to cite.
+    shop_validation = validate_shop_names(answer_text, cited_hits)
+    if not shop_validation["all_valid"]:
+        unverified = [r["name"] for r in shop_validation["results"] if not r["found"]]
+        answer_text = (
+            f"{answer_text}\n\n"
+            f"⚠️ Note: the following recommendation(s) could not be verified "
+            f"in the cited sources: {', '.join(unverified)}."
+        )
+
     return {
-        "question":  query,
-        "answer":    answer_text,
-        "citations": citation_nums,          # [1, 3] — source numbers the LLM used
-        "sources":   list(seen.values()),    # full metadata for cited sources only
-        "hits":      hits,                   # all retrieved chunks (for debugging)
+        "question":         query,
+        "answer":           answer_text,
+        "citations":        citation_nums,
+        "sources":          list(seen.values()),
+        "hits":             hits,
+        "shop_validation":  shop_validation,   # {"all_valid": bool, "results": [...]}
     }
 
 
