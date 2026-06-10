@@ -117,11 +117,12 @@ The context is created by a join of the top 7 chunks retrieved and the query abo
 
 | # | Question | Expected answer | System response (summarized) | Retrieval quality | Response accuracy |
 |---|----------|-----------------|------------------------------|-------------------|-------------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| 1 | What's the best place to study late in Charlotte?| Haraz Coffee or Qawah House| not enough information | partially relevant | accurate
+| 2 | What's a cafe that's good for reading? | Smelly Cat| Summit Coffee, reading wasn't mentioned but has the right vibe for studying | Relevant | Accurate
+| 3 | What's a cafe that has fancy or artisan coffee? | Hex Coffee| Vavela cafe with Turkish coffee, Amelie's French Bakery with French Cafe atmosphere | Relevant | Accurate
+| 4 | What's a good cafe if I just want to catch up with my friend or go on a date? | Smelly Cat|
+Stable Hand, a cafe with energetic atmosphere | Relevant | Accurate
+| 5 | What's a cafe that laptop friendly? | Stable Hand, Sumaq Coffee | Undercurrent, Stable Hand - reliable WiFi and comfortable seating | Relevant | Accurate
 
 **Retrieval quality:** Relevant / Partially relevant / Off-target  
 **Response accuracy:** Accurate / Partially accurate / Inaccurate
@@ -141,13 +142,16 @@ The context is created by a join of the top 7 chunks retrieved and the query abo
      "The embedding model treated the professor's nickname as out-of-vocabulary and returned
      results from an unrelated review" is an explanation. -->
 
-**Question that failed:**
 
-**What the system returned:**
+**Question that failed:** What's the best place to study late at night?
 
-**Root cause (tied to a specific pipeline stage):**
+**What the system returned:** I don't have enough information on that.
+
+**Root cause (tied to a specific pipeline stage):** Retrieval
+Even though there are chunks that specifically mention open late, the top 7 chunks didn't include them. Instead, the retrieval code retrieved chunks that contained info that's more relevant to (e.g. 8 : 31 pm, moonlight (a drink, in the original context)) rather than the one chunk that includes 'open late'. 
 
 **What you would change to fix it:**
+I believe certain noises got into the scraped text, such as timestamps on the website. I would ensure the data is cleaner w/o noise texts from ads to fix it.
 
 ---
 
