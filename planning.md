@@ -77,7 +77,7 @@ My sources are primarily long texts (articles) but there are also a couple of sh
 
 **Production tradeoff reflection:**
 For long paragraphs, I need a large enough capability to process a chunk to be able to retrieve enough meaning for information about a café. `text-embedding-3-small` has 8k token context, 1536-dim vectors, and consistently top-tier MTEB scores. Since I don't have that much data, I think it is okay to sacrifice some computational power in order to capture the most information out of a paragraph. As I read the articles, they often overlap on the best cafes. I believe 5-10 is a good `k` to capture enough information to showcase what the cafe is good for from multiple angles, so I want to start with 7. 
----
+
 
 ## Evaluation Plan
 
