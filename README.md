@@ -85,6 +85,7 @@ I used this model because it's one the standard baselines for embedding models. 
      the mechanism. -->
 
 **System prompt grounding instruction:**
+```
 """\
 You are a helpful local guide specialising in Charlotte, NC coffee shops.
 Answer the user's question using ONLY the information in the numbered source \
@@ -102,7 +103,7 @@ text you actually used. Every claim in your answer must be backed by a cited sou
 - Never invent details (hours, prices, addresses) not present in the documents.
 - Output raw JSON only — no markdown fences, no extra keys, no explanation.\
 """
-
+```
 
 **How source attribution is surfaced in the response:**
 The context is created by a join of the top 7 chunks retrieved and the query above. The structured output forces the json to contain a mandatory citations field. If this field doesn't contain anything, then I force the LLM to regenerate a response through the context. In addition, if the citation is source 7 but there were only 5 chunks, that citation is stripped. Lastly, I implemented a NER system to identify the coffee shop names recommended in the prompt, and validate that this name appear in the text of the citation.
@@ -160,8 +161,10 @@ I believe certain noises got into the scraped text, such as timestamps on the we
      Answer both questions with at least 2–3 sentences each. -->
 
 **One way the spec helped you during implementation:**
+`planning.md` gave me a clear idea of what I was building before I started building. I think in this age of vibe coding it's so easy to just tell Claude to develop a RAG system. Having `planning.md` on really ensured that I thought about what model is and what chunking strategy I was choosing before just driving straight into development.
 
 **One way your implementation diverged from the spec, and why:**
+The specs asked for one chunking size, yeah, Darren development because I chose a variety of different sources. I noticed that the the same chunking sizes are not working for all of my documents. Articles naturally contain longer chunks than Reddit threads, so I made the choice to create that divergence.
 
 ---
 
@@ -178,9 +181,9 @@ I believe certain noises got into the scraped text, such as timestamps on the we
 
 **Instance 1**
 
-- *What I gave the AI:*
-- *What it produced:*
-- *What I changed or overrode:*
+- *What I gave the AI:* I gave the AI instruction to implement a system that ensures theit's using retrieved chunks as context. 
+- *What it produced:* It added validation in instruction and tuned temperature lower, but didn't implement a strategy to ensure that the content is straight from the context
+- *What I changed or overrode:* I asked it to add a NER section to identify the coffee shop names recommended in the prompt, and validate that this name appear in the text of the citation.
 
 **Instance 2**
 
