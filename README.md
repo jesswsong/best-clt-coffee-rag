@@ -48,14 +48,19 @@ Coffee shops are one of the most popular third spaces across the states -- they 
      - Any preprocessing you did before chunking (e.g., stripping HTML, removing headers)
      - What your final chunk count was across all documents -->
 
-Since I looked for a diverse set of sources, such as Reddit and online blog posts, the chunk size that makes sense for the var
 **Chunk size:**
 
+
 **Overlap:**
+| | min chunk size | max chunk size | overlap |
+|--------|----|----|----|
+| article | 50 | 110 | 30 |
+| non-article | 10| 30 | 10 |
 
 **Why these choices fit your documents:**
+Since I looked for a diverse set of sources, such as Reddit and online blog posts, the chunk size that makes sense for each source is also differnt. Therefore, I added source type as a input to the chunking function. 
 
-**Final chunk count:**
+**Final chunk count: 54**
 
 ---
 
