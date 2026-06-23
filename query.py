@@ -1,5 +1,5 @@
 """
-generation.py — RAG generation and CLI interface
+query.py — RAG generation and CLI interface
 Charlotte Coffee Shop RAG Pipeline — Milestone 3
 
 LLM     : Groq  llama-3.3-70b-versatile  (free tier, OpenAI-compatible)
@@ -48,18 +48,23 @@ text you actually used. Every claim in your answer must be backed by a cited sou
 # Entity-level grounding check
 # ---------------------------------------------------------------------------
 
-# Loaded once at import time; dslim/bert-base-NER is small (~400 MB) and
-# recognises ORG entities well enough for business names.
-_ner = pipeline(
-    "ner",
-    model="dslim/bert-base-NER",
-    aggregation_strategy="simple",   # merges sub-word tokens into full spans
-)
+_ner = None  # loaded on first use — avoids paying 400 MB at import time
+
+
+def _get_ner():
+    global _ner
+    if _ner is None:
+        _ner = pipeline(
+            "ner",
+            model="dslim/bert-base-NER",
+            aggregation_strategy="simple",
+        )
+    return _ner
 
 
 def _extract_shop_names(text: str) -> list[str]:
     """Return ORG entity spans found in *text* by the NER model."""
-    entities = _ner(text)
+    entities = _get_ner()(text)
     return [e["word"] for e in entities if e["entity_group"] == "ORG"]
 
 

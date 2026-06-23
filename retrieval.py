@@ -169,7 +169,7 @@ def retrieve(
         hits.append(
             {
                 "rank":               rank,
-                "score":              dist,   # convert distance → similarity
+                "score":              round(1 - dist, 4),   # cosine distance → similarity
                 "text":               text,
                 "source_id":          meta["source_id"],
                 "source_type":        meta["source_type"],

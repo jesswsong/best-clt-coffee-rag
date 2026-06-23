@@ -339,8 +339,6 @@ def chunk_document(text: str, splitter: SemanticChunker, stype: str) -> list[str
 SOURCE_META: dict[str, dict] = {
     "reddit_best_coffee":  {"source_type": "reddit",    "description": "Reddit — Best coffee shop"},
     "reddit_good_coffee":  {"source_type": "reddit",    "description": "Reddit — Charlotte has really good coffee"},
-    "ig_best":             {"source_type": "instagram", "description": "Instagram — Best coffee shops"},
-    "ig_5_must_visit":     {"source_type": "instagram", "description": "Instagram — 5 must-visit coffee shops"},
     "cathzine":            {"source_type": "article",   "description": "Cathzine — Best laptop-friendly cafes"},
     "sprudge":             {"source_type": "article",   "description": "Sprudge Guide to Coffee in Charlotte"},
     "hopculture":          {"source_type": "article",   "description": "Hop Culture — Best Coffee Roasters and Shops"},
