@@ -9,6 +9,7 @@ A retrieval-augmented generation system that answers questions about Charlotte, 
 ```
 python app.py
 ```
+<img width="1080" height="654" alt="image" src="https://github.com/user-attachments/assets/fbb9abc1-b449-4e78-946d-9e488279b396" />
 
 ---
 
